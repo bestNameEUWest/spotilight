@@ -1,0 +1,22 @@
+<html>
+
+<head>
+  <title>Spotilight Player</title>
+  <meta charset="utf-8" />
+  <link rel="stylesheet" href="/stylesheets/style.css">
+  <script src="/scripts/jquery/jquery.js"></script>
+  <script src="https://sdk.scdn.co/spotify-player.js"></script>
+</head>
+
+<body>
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <div id="root"></div>
+  <script>
+      window.onSpotifyWebPlaybackSDKReady = () => {
+          console.log("The Web Playback SDK is ready. We have access to Spotify.Player");
+          console.log(window.Spotify.Player);
+      };
+  </script>
+</body>
+
+</html>
