@@ -1,12 +1,20 @@
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const session = require('express-session');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
 
-var app = express();
+let indexRouter = require('./routes/index');
+
+let app = express();
+
+
+app.use(session({
+    secret: ']Vm<)%EQ%O;HzZ9',
+    resave: false,
+    saveUninitialized: true
+}));
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -17,6 +25,5 @@ app.use('/scripts/jquery', express.static(path.join(__dirname, '/node_modules/jq
 
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
 
 module.exports = app;
