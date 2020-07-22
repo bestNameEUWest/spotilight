@@ -55,7 +55,8 @@ $(async () => {
             });
 
             sdk.on("player_state_changed", state => {
-                // Update UI with playback state changes
+                console.log(state);
+                sendPlaystate(state);
             });
 
             let connected = await sdk.connect();
