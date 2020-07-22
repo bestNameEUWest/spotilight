@@ -6,6 +6,7 @@ const session = require('express-session');
 
 
 let indexRouter = require('./routes/index');
+let playerRouter = require('./routes/player');
 
 let app = express();
 
@@ -25,5 +26,6 @@ app.use('/scripts/jquery', express.static(path.join(__dirname, '/node_modules/jq
 
 
 app.use('/', indexRouter);
+app.use('/player/', playerRouter);
 
 module.exports = app;
