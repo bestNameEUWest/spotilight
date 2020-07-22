@@ -126,3 +126,4 @@ let callback = function(req, res, next) {
 
 module.exports.login = login;
 module.exports.callback = callback;
+module.exports.refreshToken = refreshToken
