@@ -3,10 +3,21 @@ var router = express.Router();
 
 let spotify_authflow = require('../modules/spotify_authflow');
 
-/* GET home page. */
-// router.get('/', function(req, res, next) {
-//
-// });
+// TODO: enable refreshing logic by creating different route or serving index as template
+router.get('/', function(req, res, next) {
+  console.log('route test')
+  if(req.session['refresh_token']){
+    console.log('has refresh')
+    spotify_authflow.refreshToken(req, res)
+
+  }
+  else{
+    console.log('has no refresh')
+    res.redirect('/login')
+
+  }
+
+});
 
 router.get('/login', function(req, res, next) {
   spotify_authflow.login(req, res, next);
