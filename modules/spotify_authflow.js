@@ -52,8 +52,10 @@ function refreshToken(req, res) {
     request.post(authOptions, function(error, response, body) {
         if (!error && response.statusCode === 200) {
             let access_token = body.access_token;
-            res.session('access_token', access_token);
-            res.send('');
+            req.session.access_token = access_token;
+            res.send({
+                'access_token': req.session.access_token
+            });
         }
     });
 }
