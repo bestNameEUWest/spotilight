@@ -1,4 +1,5 @@
 require('dotenv').config();
+let db = require('../modules/mongodb_handler');
 let querystring = require('querystring');
 let request = require('request');
 
@@ -23,8 +24,8 @@ let login = function(req, res, next) {
 
     // your application requests authorization
     let scope = 'streaming user-read-private user-read-email user-read-playback-state user-modify-playback-state';
-
-    res.redirect('https://accounts.spotify.com/authorize?' +
+    console.log('in login route');
+    return res.redirect('https://accounts.spotify.com/authorize?' +
         querystring.stringify({
             response_type: 'code',
             client_id: client_id,
@@ -35,8 +36,9 @@ let login = function(req, res, next) {
     );
 };
 
-function refreshToken(req, res) {
-    let refresh_token = req.session['refresh_token'];
+async function refreshToken(req, res) {
+
+    let refresh_token = (await db.getToken('access_token')).value;
     let client_id = process.env.client_id;
     let client_secret = process.env.client_secret;
     let authOptions = {
@@ -52,9 +54,13 @@ function refreshToken(req, res) {
     request.post(authOptions, function(error, response, body) {
         if (!error && response.statusCode === 200) {
             let access_token = body.access_token;
-            req.session.access_token = access_token;
+            db.setToken({
+                name: 'access_token',
+                value: access_token
+                //expires_in:
+            });
             res.send({
-                'access_token': req.session.access_token
+                'access_token': access_token
             });
         }
     });
@@ -81,11 +87,25 @@ function requestTokens(req, res) {
 
     request.post(authOptions, function(error, response, body) {
         if (!error && response.statusCode === 200) {
+            let time = new Date();
+            let expires_in = body.expires_in;
+            let expiry_date = time.getSeconds() + expires_in;
+            console.log('Expires in: ', expiry_date);
+
+
 
             let access_token = body.access_token;
-            req.session.access_token = access_token;
+
+            db.setToken({
+                name: 'access_token',
+                value: access_token
+                //expires_in:
+            });
             let refresh_token = body.refresh_token;
-            req.session.refresh_token = refresh_token;
+            db.setToken({
+                name: 'refresh_token',
+                value: refresh_token
+            });
 
             var options = {
                 url: 'https://api.spotify.com/v1/me',
