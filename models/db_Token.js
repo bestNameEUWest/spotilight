@@ -1,13 +1,20 @@
 const mongoose = require('mongoose');
 
 const TokenSchema = mongoose.Schema({
-    access_token: {
+    name: {
         type: String,
         required: true
     },
 
-    refresh_token: {
+    value: {
         type: String,
         required: true
+    },
+
+    expires_in: {
+        type: Number,
+        required: false
     }
 });
+
+module.exports = mongoose.model('Tokens', TokenSchema);
