@@ -28,4 +28,8 @@ app.use('/scripts/jquery', express.static(path.join(__dirname, '/node_modules/jq
 app.use('/', indexRouter);
 app.use('/player/', playerRouter);
 
+process.on('exit', function () {
+    console.log('About to exit.');
+});
+
 module.exports = app;
