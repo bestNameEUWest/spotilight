@@ -11,15 +11,9 @@ $(async () => {
     const res_text = await res.json();
     let access_token = res_text.access_token;
 
-    if(access_token === undefined){
-        console.log('is undefined');
-        const tokenEndpoint = 'http://localhost:3000/refreshToken';
-        const res = await fetch(tokenEndpoint, options);
-        const res_text = await res.json();
-        access_token = res_text.access_token;
-        console.log(access_token)
-    } else {
 
+    if(access_token === undefined){
+        window.location.replace('/login');
     }
 
     let script = document.createElement('script');
@@ -57,14 +51,16 @@ $(async () => {
     (async () => {
         const { Player } = await waitForSpotifyWebPlaybackSDKToLoad();
         const sdk = new Player({
-            name: "Web Playback SDK",
+            name: "Spotilight Playback SDK",
             volume: 1.0,
             getOAuthToken: callback => { callback(access_token); }
         });
-
-        sdk.on("player_state_changed", state => {
-            handleState(state)
-        });
+        let connect = await sdk.connect();
+        if(connect){
+            sdk.on("player_state_changed", state => {
+                handleState(state)
+            });
+        }
     })();
 });
 
