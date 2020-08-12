@@ -6,15 +6,16 @@ $(async () => {
         },
     };
 
-    const tokenEndpoint = 'http://localhost:3000/accessToken';
+    const tokenEndpoint = 'http://localhost:3000/hasTokens';
     const res = await fetch(tokenEndpoint, options);
     const res_text = await res.json();
-    let access_token = res_text.access_token;
+    const available = res_text.available;
 
-
-    if(access_token === undefined){
+    if(!available){
         window.location.replace('/login');
     }
+
+    const access_token = res_text.access_token;
 
     let script = document.createElement('script');
     script.type = 'text/javascript';
