@@ -11,7 +11,7 @@ const TokenSchema = mongoose.Schema({
         required: true
     },
 
-    expires_in: {
+    expires_on: {
         type: Number,
         required: false
     }
