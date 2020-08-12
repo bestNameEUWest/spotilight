@@ -13,8 +13,25 @@ let generateRandomString = function(length) {
     return text;
 };
 
+async function tokenHandler(body){
+    let access_token = body.access_token;
+    let expires_in = body.expires_in;
+    await db.setToken({
+        name: 'access_token',
+        value: access_token
+    }, expires_in);
 
-let login = function(req, res, next) {
+    let refresh_token = body.refresh_token;
+    if(refresh_token !== undefined){
+        await db.setToken({
+            name: 'refresh_token',
+            value: refresh_token
+        });
+    }
+}
+
+
+let login = function(req, res) {
     let client_id = process.env.client_id;
     let redirect_uri = process.env.redirect_uri;
 
@@ -24,7 +41,7 @@ let login = function(req, res, next) {
 
     // your application requests authorization
     let scope = 'streaming user-read-private user-read-email user-read-playback-state user-modify-playback-state';
-    console.log('in login route');
+
     return res.redirect('https://accounts.spotify.com/authorize?' +
         querystring.stringify({
             response_type: 'code',
@@ -36,9 +53,8 @@ let login = function(req, res, next) {
     );
 };
 
-async function refreshToken(req, res) {
-
-    let refresh_token = (await db.getToken('access_token')).value;
+async function refreshToken() {
+    let refresh_token = (await db.getToken('refresh_token')).value;
     let client_id = process.env.client_id;
     let client_secret = process.env.client_secret;
     let authOptions = {
@@ -51,17 +67,9 @@ async function refreshToken(req, res) {
         json: true
     };
 
-    request.post(authOptions, function(error, response, body) {
+    request.post(authOptions, async function(error, response, body) {
         if (!error && response.statusCode === 200) {
-            let access_token = body.access_token;
-            db.setToken({
-                name: 'access_token',
-                value: access_token
-                //expires_in:
-            });
-            res.send({
-                'access_token': access_token
-            });
+            await tokenHandler(body);
         }
     });
 }
@@ -85,40 +93,9 @@ function requestTokens(req, res) {
         json: true
     };
 
-    request.post(authOptions, function(error, response, body) {
+    request.post(authOptions, async function(error, response, body) {
         if (!error && response.statusCode === 200) {
-            let time = new Date();
-            let expires_in = body.expires_in;
-            let expiry_date = time.getSeconds() + expires_in;
-            console.log('Expires in: ', expiry_date);
-
-
-
-            let access_token = body.access_token;
-
-            db.setToken({
-                name: 'access_token',
-                value: access_token
-                //expires_in:
-            });
-            let refresh_token = body.refresh_token;
-            db.setToken({
-                name: 'refresh_token',
-                value: refresh_token
-            });
-
-            var options = {
-                url: 'https://api.spotify.com/v1/me',
-                headers: { 'Authorization': 'Bearer ' + access_token },
-                json: true
-            };
-
-            // use the access token to access the Spotify Web API
-            request.get(options, function(error, response, body) {
-                //console.log(body);
-            });
-
-            // we can also pass the token to the browser to make requests from there
+            await tokenHandler(body);
             res.redirect('/#');
         } else {
             res.redirect('/#' +
@@ -130,7 +107,7 @@ function requestTokens(req, res) {
     });
 }
 
-let callback = function(req, res, next) {
+let callback = function(req, res) {
     let stateKey = 'auth_state';
     let state = req.query.state || null;
     let storedState = req.cookies ? req.cookies[stateKey] : null;
@@ -148,4 +125,4 @@ let callback = function(req, res, next) {
 
 module.exports.login = login;
 module.exports.callback = callback;
-module.exports.refreshToken = refreshToken
+module.exports.refreshToken = refreshToken;
