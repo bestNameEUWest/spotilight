@@ -14,6 +14,14 @@ const Song = require('../models/db_Song');
     });
 })();
 
+async function deleteTokens(){
+    try {
+        return await Token.deleteMany();
+    } catch (e) {
+        console.log(e.stack);
+    }
+}
+
 async function hasToken(name){
     try {
         return await Token.exists({ name: name });
@@ -23,11 +31,15 @@ async function hasToken(name){
     }
 }
 
-async function setToken(token){
+async function setToken(token, expires_in=0){
     if(await hasToken(token.name)){
         console.log('token already set')
     } else {
-        console.log('new token entry');
+        if(expires_in > 0) {
+            const time = Date.now();
+            token.expires_on = time + expires_in;
+        }
+        console.log('setToken: ', token);
         const db_token = new Token(token);
         await db_token.save()
     }
@@ -78,3 +90,4 @@ async function hasSong(id) {
 module.exports.hasToken = hasToken;
 module.exports.setToken = setToken;
 module.exports.getToken = getToken;
+module.exports.deleteTokens = deleteTokens;
