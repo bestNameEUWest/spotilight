@@ -4,56 +4,47 @@ let db = require('../modules/mongodb_handler');
 
 let spotify_authflow = require('../modules/spotify_authflow');
 
-/*
-router.get('/refreshToken', function(req, res, next) {
-  console.log('route test');
-  console.log('Refresh Token:', req.session['refresh_token'])
-  if(req.session['refresh_token']){
-    spotify_authflow.refreshToken(req, res)
-    res.redirect('http://localhost:3000')
-  }
-  else{
-    console.log('redirection')
-    res.redirect('/login')
-  }
 
-});
 
- */
-
-router.get('/login', function(req, res, next) {
-  spotify_authflow.login(req, res, next);
-});
-
-router.get('/callback', function(req, res, next) {
-  spotify_authflow.callback(req, res, next);
-});
-
-router.get('/accessToken', function (req, res, next) {
-  let db_access_token = db.getToken('access_token');
-
+router.get('/hasTokens', async function (req, res, next) {
+  let db_access_token = await db.getToken('access_token');
+  let refresh_token = await db.getToken('refresh_token');
   let data = {
-    'access_token': db_access_token.value
+    available: true,
+    access_token: ''
   };
+  if(db_access_token === undefined || refresh_token === undefined){
+    data.available = false;
+  } else {
+    let is_valid = db_access_token.expires_on > Date.now();
+    if(!is_valid){
+      await spotify_authflow.refreshToken();
+      db_access_token = await db.getToken('access_token');
+    }
+    data.access_token = db_access_token.value;
+  }
   res.type('application/json');
   res.status(200);
   res.send(data)
 });
 
-router.get('/accessExpired', async function (req, res) {
 
+router.get('/login', async function (req, res, next) {
+  return spotify_authflow.login(req, res, next);
 });
 
-router.get('/refreshToken', async function (req, res, next) {
-  let name = 'refresh_token';
-  if(await db.hasToken(name)){
-    let refresh_token = await db.getToken(name);
-    console.log('refreshToken: ', refresh_token)
-  }
-  res.type('application/json');
+
+router.get('/callback', function(req, res, next) {
+  spotify_authflow.callback(req, res, next);
+});
+
+
+router.get('/deleteTokens', async function (req, res) {
+  await db.deleteTokens();
   res.status(200);
-  res.send()
+  res.redirect('/#');
 });
+
 
 
 module.exports = router;
