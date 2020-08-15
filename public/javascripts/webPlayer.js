@@ -53,7 +53,7 @@ $(async () => {
         const { Player } = await waitForSpotifyWebPlaybackSDKToLoad();
         const sdk = new Player({
             name: "Spotilight Playback SDK",
-            volume: 1.0,
+            volume: 0.5,
             getOAuthToken: callback => { callback(access_token); }
         });
         let connect = await sdk.connect();
