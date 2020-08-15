@@ -14,9 +14,9 @@ const Song = require('../models/db_Song');
     });
 })();
 
-async function deleteTokens(){
+async function deleteToken(name){
     try {
-        return await Token.deleteMany();
+        return await Token.deleteOne({ name: name });
     } catch (e) {
         console.log(e.stack);
     }
@@ -32,17 +32,12 @@ async function hasToken(name){
 }
 
 async function setToken(token, expires_in=0){
-    if(await hasToken(token.name)){
-        console.log('token already set')
-    } else {
-        if(expires_in > 0) {
-            const time = Date.now();
-            token.expires_on = time + expires_in;
-        }
-        console.log('setToken: ', token);
-        const db_token = new Token(token);
-        await db_token.save()
+    if (expires_in > 0) {
+        const time = Date.now();
+        token.expires_on = time + expires_in;
     }
+    const db_token = new Token(token);
+    await db_token.save()
 }
 
 async function getToken(name){
@@ -63,17 +58,9 @@ async function addSong(song) {
 
 }
 
-async function addSongs(songs) {
-    try {
-
-    } catch (e) {
-        console.log(e.stack)
-    }
-}
-
 async function getSong(id) {
     try {
-
+        return (await Song.find({ id: id }))[0];
     } catch (e) {
         console.log(e.stack)
     }
@@ -81,7 +68,7 @@ async function getSong(id) {
 
 async function hasSong(id) {
     try {
-
+        return await Song.exists({ id: id });
     } catch (e) {
         console.log(e.stack)
     }
@@ -90,4 +77,8 @@ async function hasSong(id) {
 module.exports.hasToken = hasToken;
 module.exports.setToken = setToken;
 module.exports.getToken = getToken;
-module.exports.deleteTokens = deleteTokens;
+module.exports.deleteToken = deleteToken;
+
+module.exports.hasSong = hasSong;
+module.exports.addSong = addSong;
+module.exports.getSong = getSong;
