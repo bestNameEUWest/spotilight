@@ -40,7 +40,8 @@ router.get('/callback', function(req, res, next) {
 
 
 router.get('/deleteTokens', async function (req, res) {
-  await db.deleteTokens();
+  await db.deleteToken('access_token');
+  await db.deleteToken('refresh_token');
   res.status(200);
   res.redirect('/#');
 });
