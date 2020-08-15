@@ -1,11 +1,10 @@
 async function sendRequestTo(endpoint, options) {
     const url = 'http://localhost:3000/player';
-    let res = await $.ajax({
+    return await $.ajax({
         url: url + endpoint,
         method: options.method,
         data: options.params,
     });
-    return res
 }
 
 function sendPlaystate(state) {
@@ -21,29 +20,26 @@ function sendPlaystate(state) {
     sendRequestTo(endpoint, options)
 }
 
-async function hasSong(song) {
+async function RESTCallSong(song, method){
     let endpoint = '/songs/' + song.id;
     let options = {
-        method: 'GET'
+        method: method
     };
-    let res = await sendRequestTo(endpoint, options);
-    console.log(res.statusCode)
+    await sendRequestTo(endpoint, options);
+}
+
+async function hasSong(song) {
+    const method = 'GET';
+    await RESTCallSong(song, method);
 }
 
 async function addSong(song) {
-    let endpoint = '/songs';
-    let options = {
-        params: {
-            song: song
-        },
-        method: 'POST'
-    };
-    let res = sendRequestTo(endpoint, options);
-    console.log(res)
+    const method = 'POST';
+    await RESTCallSong(song, method);
 }
 
-function handleState(state){
-    console.log(state);
+async function handleState(state){
+    // console.log(state);
     sendPlaystate(state);
 
     let current_track = state.track_window.current_track;
@@ -53,8 +49,14 @@ function handleState(state){
     songs.push(current_track);
     next_tracks.forEach(next_track => { songs.push(next_track); });
 
-    songs.forEach(song => {
-        hasSong(song)
+    songs.forEach(async song => {
+        try {
+            await hasSong(song)
+        }catch (e) {
+            if(e.status === 404){
+                await addSong(song);
+            }
+        }
     });
 
     //sendSongs(songs);
