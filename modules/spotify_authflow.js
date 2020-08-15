@@ -16,6 +16,7 @@ let generateRandomString = function(length) {
 async function tokenHandler(body){
     let access_token = body.access_token;
     let expires_in = body.expires_in;
+    await db.deleteToken('access_token');
     await db.setToken({
         name: 'access_token',
         value: access_token
@@ -23,6 +24,7 @@ async function tokenHandler(body){
 
     let refresh_token = body.refresh_token;
     if(refresh_token !== undefined){
+        await db.deleteToken('refresh_token');
         await db.setToken({
             name: 'refresh_token',
             value: refresh_token
