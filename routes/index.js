@@ -7,8 +7,8 @@ let spotify_authflow = require('../modules/spotify_authflow');
 
 
 router.get('/hasTokens', async function (req, res, next) {
-  let db_access_token = await db.getToken('access_token');
-  let refresh_token = await db.getToken('refresh_token');
+  let db_access_token = await db.getAccessToken();
+  let refresh_token = await db.getRefreshToken();
   let data = {
     available: true,
     access_token: ''
@@ -19,7 +19,7 @@ router.get('/hasTokens', async function (req, res, next) {
     let is_valid = db_access_token.expires_on > Date.now();
     if(!is_valid){
       await spotify_authflow.refreshToken();
-      db_access_token = await db.getToken('access_token');
+      db_access_token = await db.getAccessToken();
     }
     data.access_token = db_access_token.value;
   }
@@ -40,8 +40,8 @@ router.get('/callback', function(req, res, next) {
 
 
 router.get('/deleteTokens', async function (req, res) {
-  await db.deleteToken('access_token');
-  await db.deleteToken('refresh_token');
+  await db.deleteAccessToken();
+  await db.deleteRefreshToken();
   res.status(200);
   res.redirect('/#');
 });

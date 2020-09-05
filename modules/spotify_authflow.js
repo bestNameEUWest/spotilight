@@ -16,19 +16,13 @@ let generateRandomString = function(length) {
 async function tokenHandler(body){
     let access_token = body.access_token;
     let expires_in = body.expires_in;
-    await db.deleteToken('access_token');
-    await db.setToken({
-        name: 'access_token',
-        value: access_token
-    }, expires_in);
+    await db.deleteAccessToken();
+    await db.setAccessToken({ value: access_token }, expires_in);
 
     let refresh_token = body.refresh_token;
     if(refresh_token !== undefined){
-        await db.deleteToken('refresh_token');
-        await db.setToken({
-            name: 'refresh_token',
-            value: refresh_token
-        });
+        await db.deleteRefreshToken();
+        await db.setRefreshToken({ value: refresh_token });
     }
 }
 
@@ -56,7 +50,7 @@ let login = function(req, res) {
 };
 
 async function refreshToken() {
-    let refresh_token = (await db.getToken('refresh_token')).value;
+    let refresh_token = (await db.getRefreshToken()).value;
     let client_id = process.env.client_id;
     let client_secret = process.env.client_secret;
     let authOptions = {
