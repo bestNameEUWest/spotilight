@@ -1,5 +1,6 @@
 var express = require('express');
 let db = require('../modules/mongodb_handler');
+let ah = require('../modules/audio_analysis_handler');
 var router = express.Router();
 
 router.get('/playstate', async (req, res, next) => {
@@ -32,9 +33,13 @@ router.get('/songs/:id', async (req, res, next) => {
 });
 
 
-router.post('/songs/:id', (req, res, next) => {
+router.post('/songs/:id', async (req, res, next) => {
     let song_id = req.params.id;
-    console.log('Add song: ', song_id);
+
+    console.time('Analysis time for id: ' + song_id);
+    await ah.getAudioAnalysisForSongID(song_id);
+    console.timeEnd('Analysis time for id: ' + song_id);
+    //console.log('Add song: ', song_id);
     res.status(200);
     res.send();
 });
