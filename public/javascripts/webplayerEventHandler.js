@@ -1,3 +1,5 @@
+let lock = false;
+
 async function sendRequestTo(endpoint, options) {
     const url = 'http://localhost:3000/player';
     return await $.ajax({
@@ -39,25 +41,28 @@ async function addSong(song) {
 }
 
 async function handleState(state){
-    // console.log(state);
-    sendPlaystate(state);
+    if(!lock){
+        lock = true;
+        //console.log(state);
+        sendPlaystate(state);
 
-    let current_track = state.track_window.current_track;
-    let next_tracks = state.track_window.next_tracks;
+        let current_track = state.track_window.current_track;
+        let next_tracks = state.track_window.next_tracks;
 
-    let songs = [];
-    songs.push(current_track);
-    next_tracks.forEach(next_track => { songs.push(next_track); });
+        let songs = [];
+        songs.push(current_track);
+        next_tracks.forEach(next_track => { songs.push(next_track); });
 
-    songs.forEach(async song => {
-        try {
-            await hasSong(song)
-        }catch (e) {
-            if(e.status === 404){
-                await addSong(song);
+        await songs.forEach(async song => {
+            try {
+                await hasSong(song)
+            }catch (e) {
+                if(e.status === 404){
+                    await addSong(song);
+                }
             }
-        }
-    });
+        });
 
-    //sendSongs(songs);
+        lock = false;
+    }
 }
