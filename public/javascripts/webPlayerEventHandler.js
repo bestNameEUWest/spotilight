@@ -2,7 +2,7 @@ let lock = false;
 
 async function sendRequestTo(endpoint, options) {
     const url = 'http://localhost:3000/player';
-    return await $.ajax({
+    return $.ajax({
         url: url + endpoint,
         method: options.method,
         data: options.params,
@@ -53,16 +53,17 @@ async function handleState(state){
         songs.push(current_track);
         next_tracks.forEach(next_track => { songs.push(next_track); });
 
-        await songs.forEach(async song => {
+        songs.forEach(function(song){
             try {
-                await hasSong(song)
-            }catch (e) {
+                hasSong(song)
+                console.log('has song')
+            } catch (e) {
                 if(e.status === 404){
-                    await addSong(song);
+                    console.log('addSong')
+                    addSong(song);
                 }
             }
         });
-
         lock = false;
     }
 }
