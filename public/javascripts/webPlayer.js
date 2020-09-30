@@ -49,15 +49,25 @@ $(async () => {
         });
     }
 
-    (async () => {
-        const { Player } = await waitForSpotifyWebPlaybackSDKToLoad();
+    await (async () => {
+        const {Player} = await waitForSpotifyWebPlaybackSDKToLoad();
         const sdk = new Player({
             name: "Spotilight",
             volume: 0.5,
-            getOAuthToken: callback => { callback(access_token); }
+            getOAuthToken: callback => {
+                callback(access_token);
+            }
         });
         let connect = await sdk.connect();
-        if(connect){
+        if (connect) {
+            let url = 'https://api.spotify.com/v1/me/player';
+            let options = {
+                method: 'put',
+                headers: {
+                    'Authorization': 'Bearer ' + access_token
+                },
+                json: true
+            };
             sdk.on("player_state_changed", state => {
                 handleState(state)
             });
