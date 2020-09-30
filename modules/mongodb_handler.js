@@ -76,7 +76,6 @@ async function getToken(name){
     }
 }
 
-
 /**
  * Checks for access token
  * @returns {Promise<boolean>}
@@ -146,7 +145,8 @@ async function deleteRefreshToken(){
 
 async function addSong(song) {
     try {
-
+        const db_song = new Song(song);
+        await db_song.save()
     } catch (e) {
         console.log(e.stack)
     }
@@ -166,6 +166,7 @@ async function hasSong(id) {
         return await Song.exists({ id: id });
     } catch (e) {
         console.log(e.stack)
+        return null
     }
 }
 
