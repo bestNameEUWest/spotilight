@@ -71,6 +71,15 @@ $(async () => {
             sdk.on("player_state_changed", state => {
                 handleState(state)
             });
+            setInterval(() => {
+                sdk.getCurrentState().then(state => {
+                    if (!state) {
+                        console.error('User is not playing music through the Web Playback SDK');
+                    } else {
+                        handleState(state);
+                    }
+                })
+            }, 10000)
         }
     })();
 });

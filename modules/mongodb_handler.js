@@ -162,12 +162,23 @@ async function getSong(id) {
 }
 
 async function hasSong(id) {
-    try {
-        return await Song.exists({ id: id });
-    } catch (e) {
-        console.log(e.stack)
-        return null
+    if(this.lock === undefined)
+        this.lock = false;
+
+    if(this.lock){
+        this.lock = true;
+        try {
+            let has_song = await Song.exists({ id: id });
+            console.log('has song: ' + has_song);
+            return has_song; // await Song.exists({ id: id });
+        } catch (e) {
+            console.log(e.stack);
+            return null
+        } finally {
+            this.lock = false;
+        }
     }
+
 }
 
 module.exports.hasAccessToken = hasAccessToken;

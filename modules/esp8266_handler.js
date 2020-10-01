@@ -1,20 +1,36 @@
 let db = require('../modules/mongodb_handler');
 
 class Esp8266_handler {
-    intervall;
-    current_song = '2FL785nGQsw1oaYwM1j6Eh';
 
     constructor() {
+        this.time_delta_ms = 5000;
+        this.intervall = setInterval(() => {this.statusObserver()}, 1);
     }
 
-    timerTest(start_time){
-        let passed_time = Date.now() - start_time
-        console.log('Current passed time: ' + passed_time)
-        console.log('Current song id: ' + this.current_song)
+    setSongID(song_id){
+        this.song_id = song_id
     }
 
-    sendDataFrom(time_in_ms = 0){
-        const offset = Date.now() - time_in_ms
+    setPaused(isPlaying){
+        this.is_paused = isPlaying;
+    }
+
+    setPosition(position){
+        this.position = Date.now() - position;
+    }
+
+    statusObserver(){
+        if(!this.is_paused){
+            //console.log('Current position: ' + (Date.now() - this.position)/1000);
+        }
+        //console.log('Current song id: ' + this.song_id);
+
+        //console.log('Current paused: ' + this.is_paused);
+    }
+
+
+    /*sendDataFrom(time_in_ms = 0){
+        const offset = Date.now() - time_in_ms;
         this.intervall = setInterval(this.timerTest.bind(null, offset), 1000)
     }
 
@@ -23,12 +39,10 @@ class Esp8266_handler {
             clearInterval(this.intervall)
         }
     }
+    */
 
-    setCurrentSong(song_id){
-        this.current_song = song_id
-    }
 
 
 }
 
-module.exports.ESPHandler = Esp8266_handler
+module.exports = Esp8266_handler;
