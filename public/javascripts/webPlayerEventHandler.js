@@ -14,7 +14,8 @@ function sendPlaystate(state) {
     let options = {
         params: {
             paused: state.paused,
-            position: state.position
+            position: state.position,
+            song_id: state.track_window.current_track.id
         },
         method: 'GET'
     };
@@ -32,12 +33,22 @@ async function RESTCallSong(song, method){
 
 async function hasSong(song) {
     const method = 'GET';
-    await RESTCallSong(song, method);
+    try {
+        await RESTCallSong(song, method);
+    } catch (e) {
+        throw e
+    }
+
 }
 
 async function addSong(song) {
     const method = 'POST';
-    await RESTCallSong(song, method);
+    try {
+        await RESTCallSong(song, method);
+    } catch (e) {
+        throw e
+    }
+
 }
 
 async function handleState(state){
@@ -53,14 +64,13 @@ async function handleState(state){
         songs.push(current_track);
         next_tracks.forEach(next_track => { songs.push(next_track); });
 
-        songs.forEach(function(song){
+        songs.forEach(async function(song){
             try {
-                hasSong(song)
-                console.log('has song')
+                await hasSong(song)
             } catch (e) {
                 if(e.status === 404){
                     console.log('addSong')
-                    addSong(song);
+                    await addSong(song);
                 }
             }
         });
