@@ -144,13 +144,18 @@ async function deleteRefreshToken(){
 }
 
 async function addSong(song) {
-    try {
-        const db_song = new Song(song);
-        await db_song.save()
-    } catch (e) {
-        console.log(e.stack)
+    let has_song = await this.hasSong(song.id);
+    if(!has_song){
+        try {
+            const db_song = new Song(song);
+            await db_song.save()
+        } catch (e) {
+            console.log(e.stack)
+        }
+        return true
+    } else {
+        return false
     }
-
 }
 
 async function getSong(id) {
@@ -165,7 +170,7 @@ async function hasSong(id) {
     try {
         return await Song.exists({ id: id });
     } catch (e) {
-        console.log(e.stack)
+        console.log(e.stack);
         return null
     }
 }
