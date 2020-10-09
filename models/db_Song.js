@@ -8,7 +8,8 @@ const SongSchema = mongoose.Schema({
 
     id: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
 
     bars: [{
