@@ -1,6 +1,6 @@
 let lock = false;
 
-async function sendRequestTo(endpoint, options) {
+function sendRequestTo(endpoint, options) {
     const url = 'http://localhost:3000/player';
     return $.ajax({
         url: url + endpoint,
@@ -9,7 +9,7 @@ async function sendRequestTo(endpoint, options) {
     });
 }
 
-function sendPlaystate(state) {
+async function sendPlaystate(state) {
     let endpoint = '/playstate';
     let options = {
         params: {
@@ -20,38 +20,25 @@ function sendPlaystate(state) {
         method: 'GET'
     };
 
-    sendRequestTo(endpoint, options)
-}
-
-async function RESTCallSong(song, method){
-    let endpoint = '/songs/' + song.id;
-    let options = {
-        method: method
-    };
-    await sendRequestTo(endpoint, options);
-}
-
-async function hasSong(song) {
-    const method = 'GET';
     try {
-        await RESTCallSong(song, method);
+        await sendRequestTo(endpoint, options)
     } catch (e) {
-        throw e
+        throw (e)
     }
 
 }
 
 async function addSong(song) {
-    const method = 'POST';
-    try {
-        await RESTCallSong(song, method);
-    } catch (e) {
-        throw e
-    }
-
+    let endpoint = '/songs/' + song.id;
+    let options = {
+        method: 'POST'
+    };
+    await sendRequestTo(endpoint, options);
 }
 
 async function handleState(state){
+    console.log('ID: ' + state.track_window.current_track.id);
+    console.log('Position: ' + state.position);
     if(!lock){
         lock = true;
         //console.log(state);
@@ -60,20 +47,9 @@ async function handleState(state){
         let current_track = state.track_window.current_track;
         let next_tracks = state.track_window.next_tracks;
 
-        let songs = [];
-        songs.push(current_track);
-        next_tracks.forEach(next_track => { songs.push(next_track); });
+        await addSong(current_track);
+        next_tracks.forEach(async (next_track) => { await addSong(next_track)});
 
-        songs.forEach(async function(song){
-            try {
-                await hasSong(song)
-            } catch (e) {
-                if(e.status === 404){
-                    console.log('addSong')
-                    await addSong(song);
-                }
-            }
-        });
         lock = false;
     }
 }
