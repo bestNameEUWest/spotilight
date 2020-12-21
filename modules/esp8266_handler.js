@@ -1,5 +1,8 @@
 let db = require('../modules/mongodb_handler');
 let _ = require('lodash');
+const dns = require('dns');
+const os = require('os');
+
 
 class Esp8266_handler {
 
@@ -8,6 +11,27 @@ class Esp8266_handler {
         this.setWindow();
         this.is_paused = true;
         setInterval(() => {this.timer()}, 10);
+        this.is_connected = false;
+    }
+
+    connected(){
+        return this.is_connected;
+    }
+
+    connect(io){
+        this.is_connected = true;
+        // websocket
+        io.on('connection', (socket) => {
+            console.log('ESP connected!');
+            socket.on('disconnect', () => {
+                console.log('user disconnected');
+            });
+            socket.on('ping', (msg) => {
+                console.log('message: ' + msg);
+                const answer = 'Hello from PC!';
+                io.emit('ping', answer);
+            });
+        });
     }
 
     setWindow(){
@@ -92,7 +116,7 @@ class Esp8266_handler {
 
     sendDataWindow(){
         let assembly = this.assembleDataWindow();
-        console.log(assembly)
+        //console.log(assembly)
 
 
     }
