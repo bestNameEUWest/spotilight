@@ -4,19 +4,24 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const session = require('express-session');
 const cors = require('cors');
-
+let http = require('http');
+let app = express();
+let server = http.createServer(app);
+let io = require('socket.io')(server);
 
 let indexRouter = require('./routes/index');
 let playerRouter = require('./routes/player');
-
-let app = express();
-
 
 app.use(session({
     secret: ']Vm<)%EQ%O;HzZ9',
     resave: false,
     saveUninitialized: true
 }));
+
+app.use(function(req, res, next){
+    res.io = io;
+    next();
+});
 
 app.use(cors());
 app.use(logger('dev'));
@@ -34,4 +39,4 @@ process.on('exit', function () {
     console.log('About to exit.');
 });
 
-module.exports = app;
+module.exports = {app: app, server: server};

@@ -8,6 +8,14 @@ let audio_analysis_handler = require('../modules/audio_analysis_handler');
 let ESPHandler = require('../modules/esp8266_handler');
 let espHandler = new ESPHandler();
 
+router.use(function (req, res, next) {
+    if(!espHandler.connected()){
+        espHandler.connect(res.io);
+        console.log(res.io);
+    }
+    next()
+});
+
 router.get('/playstate', async (req, res, next) => {
     let song_id = req.query.song_id;
     let position = req.query.position;
