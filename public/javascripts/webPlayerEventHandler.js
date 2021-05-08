@@ -41,14 +41,14 @@ async function handleState(state){
     console.log('Position: ' + state.position);
     if(!lock){
         lock = true;
-        //console.log(state);
-        sendPlaystate(state);
 
         let current_track = state.track_window.current_track;
         let next_tracks = state.track_window.next_tracks;
 
         await addSong(current_track);
         next_tracks.forEach(async (next_track) => { await addSong(next_track)});
+
+        sendPlaystate(state);
 
         lock = false;
     }
