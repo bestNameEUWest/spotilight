@@ -109,7 +109,7 @@ let callback = function(req, res) {
     let storedState = req.cookies ? req.cookies[stateKey] : null;
 
     if (state === null || state !== storedState) {
-        res.redirect('http://localhost:3000/#' +
+        res.redirect('http://localhost:3000/' +
             querystring.stringify({
                 error: 'state_mismatch'
             }));
