@@ -4,7 +4,7 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const session = require('express-session');
 const cors = require('cors');
-let http = require('http');
+const http = require('http');
 let app = express();
 let server = http.createServer(app);
 let io = require('socket.io')(server);
@@ -35,8 +35,5 @@ app.use('/scripts/jquery', express.static(path.join(__dirname, '/node_modules/jq
 app.use('/', indexRouter);
 app.use('/player/', playerRouter);
 
-process.on('exit', function () {
-    console.log('About to exit.');
-});
 
 module.exports = {app: app, server: server};
