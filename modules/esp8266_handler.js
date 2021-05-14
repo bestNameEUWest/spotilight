@@ -15,8 +15,9 @@ class Esp8266_handler {
     connect(io){
         this.is_connected = true;
         this.io = io;
+        console.log(`Debug: connected?`);
         io.on('connection', (socket) => {
-            this.sockets.add(socket);
+            this.sockets.push(socket);
 
             console.log(`ESP ${socket.handshake.address} connected!`);
             socket.on('disconnect', () => {
