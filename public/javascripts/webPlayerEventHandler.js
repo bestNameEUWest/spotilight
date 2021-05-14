@@ -53,3 +53,23 @@ async function handleState(state){
         lock = false;
     }
 }
+
+async function changeToPlayer(device_id, access_token) {
+    let url = 'https://api.spotify.com/v1/me/player';
+    let options = {
+        method: 'PUT',
+        headers: {
+            'Authorization': 'Bearer ' + access_token
+        },
+        data: JSON.stringify({
+            device_ids: [device_id],
+            play: true
+        }),
+    };
+    try {
+        await $.ajax(url, options);
+    } catch (e) {
+        console.log(e)
+    }
+
+}

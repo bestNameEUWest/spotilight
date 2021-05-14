@@ -60,14 +60,9 @@ $(async () => {
         });
         let connect = await sdk.connect();
         if (connect) {
-            let url = 'https://api.spotify.com/v1/me/player';
-            let options = {
-                method: 'put',
-                headers: {
-                    'Authorization': 'Bearer ' + access_token
-                },
-                json: true
-            };
+            sdk.addListener('ready', ({ device_id }) => {
+                changeToPlayer(device_id, access_token);
+            });
             sdk.on("player_state_changed", state => {
                 handleState(state)
             });
